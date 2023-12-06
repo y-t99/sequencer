@@ -33,11 +33,15 @@ pub fn next() -> String {
     let year_div_400 = offset_days.div_euclid(146_097);
     let cycle = offset_days.rem_euclid(146_097);
     let mut year_mod_400 = cycle / 365;
-    let ordinal = cycle % 365;
+    let mut ordinal0 = cycle % 365;
     let delta = YEAR_DELTAS[year_mod_400 as usize] as u64;
-    if ordinal < delta {
+    if ordinal0 < delta {
         year_mod_400 -= 1;
+        ordinal0 += 365 - YEAR_DELTAS[year_mod_400 as usize] as u32;
+    } else {
+        ordinal0 -= delta;
     }
+    let ordinal = ordinal0 + 1;
     let year = year_div_400 * 400 + year_mod_400;
     year.to_string()
 }
