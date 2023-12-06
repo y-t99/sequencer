@@ -1,4 +1,4 @@
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 // const ALPHABET: [char; 10] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
@@ -24,12 +24,10 @@ const YEAR_DELTAS: &[u8; 401] = &[
     96, 97, 97, 97, 97, // 400 + 1
 ];
 
-pub fn next() -> String {
-    let now = SystemTime::now().duration_since(UNIX_EPOCH).expect("system time before Unix epoch");
-    let secs = now.as_secs();
-    let mut days = secs.div_euclid(86_400);
-    days = days.checked_add(719_163).unwrap();
-    let offset_days = days.checked_add(365).unwrap();
+pub fn get_date_from_epoch_timestamp(timestamp: u64) -> (u64, u64, u64) {
+    let mut days = timestamp.div_euclid(86_400);
+    let offset_days = days.checked_add(719_163).unwrap();
+    let offset_days = offset_days.checked_add(365).unwrap();
     let year_div_400 = offset_days.div_euclid(146_097);
     let cycle = offset_days.rem_euclid(146_097);
     let mut year_mod_400 = cycle / 365;
@@ -56,6 +54,13 @@ pub fn next() -> String {
         month += 1;
     }
     let day = days_in_year[month - 1] - (total_days - ordinal);
+    (year, month as u64, day)
+}
+
+pub fn next() -> String {
+    let now = SystemTime::now().duration_since(UNIX_EPOCH).expect("system time before Unix epoch");
+    let secs = now.as_secs();
+    let (year, _month, _day) = get_date_from_epoch_timestamp(secs);
     year.to_string()
 }
 
@@ -68,4 +73,14 @@ mod tests {
         let sequence = next();
         assert_eq!(sequence, "2023");
     }
+
+    #[test]
+    fn test_get_date_from_epoch_timestamp() {
+        let date = Duration::from_secs(932515200);
+        let (year, month, day) = get_date_from_epoch_timestamp(date.as_secs());
+        assert_eq!(year, 1999);
+        assert_eq!(month, 7);
+        assert_eq!(day, 21);
+    }
+
 }
