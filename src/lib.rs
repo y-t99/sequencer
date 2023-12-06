@@ -37,12 +37,25 @@ pub fn next() -> String {
     let delta = YEAR_DELTAS[year_mod_400 as usize] as u64;
     if ordinal0 < delta {
         year_mod_400 -= 1;
-        ordinal0 += 365 - YEAR_DELTAS[year_mod_400 as usize] as u32;
+        ordinal0 += 365 - delta;
     } else {
         ordinal0 -= delta;
     }
     let ordinal = ordinal0 + 1;
     let year = year_div_400 * 400 + year_mod_400;
+    let is_leap_year = year % 4 == 0 && (year % 100 != 0 || (year % 100 == 0 && year % 400 == 0));
+    let days_in_year = if is_leap_year {
+        [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    } else {
+        [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    };
+    let mut month = 0;
+    let mut total_days = 0;
+    while total_days < ordinal {
+        total_days += days_in_year[month];
+        month += 1;
+    }
+    let day = days_in_year[month - 1] - (total_days - ordinal);
     year.to_string()
 }
 
