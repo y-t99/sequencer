@@ -55,6 +55,11 @@ fn get_date_from_epoch_timestamp(timestamp: u64) -> (u64, u64, u64) {
     (year, month as u64, day)
 }
 
+enum DateFormat {
+    DEFAULT,
+    ISO8601,
+}
+
 struct Date {
     year: u64,
     month: u64,
@@ -81,6 +86,14 @@ impl Date {
             day,
         }
     }
+
+    pub fn to_string(&self, date_format: Option<DateFormat>) -> String{
+        match date_format {
+            None | Some(DateFormat::DEFAULT) | Some(DateFormat::ISO8601)  => {
+                format!("{}-{:02}-{:02}", self.year, self.month, self.day)
+            },
+        }
+    }
 }
 
 
@@ -104,5 +117,16 @@ mod tests {
         assert_eq!(date.year, 1999);
         assert_eq!(date.month, 7);
         assert_eq!(date.day, 21);
+    }
+
+    #[test]
+    fn test_to_string() {
+        let date = Date::from_epoch_timestamp(932515200);
+        let none = date.to_string(None);
+        let default = date.to_string(Some(DateFormat::DEFAULT));
+        let iso8601 = date.to_string(Some(DateFormat::ISO8601));
+        assert_eq!(none, "1999-07-21");
+        assert_eq!(default, "1999-07-21");
+        assert_eq!(iso8601, "1999-07-21");
     }
 }
