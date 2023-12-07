@@ -23,7 +23,7 @@ const YEAR_DELTAS: &[u8; 401] = &[
 ];
 
 fn get_date_from_epoch_timestamp(timestamp: u64) -> (u64, u64, u64) {
-    let mut days = timestamp.div_euclid(86_400);
+    let days = timestamp.div_euclid(86_400);
     let offset_days = days.checked_add(719_163).unwrap();
     let offset_days = offset_days.checked_add(365).unwrap();
     let year_div_400 = offset_days.div_euclid(146_097);
@@ -98,4 +98,11 @@ mod tests {
         assert_eq!(day, 21);
     }
 
+    #[test]
+    fn test_from_epoch_timestamp() {
+        let date = Date::from_epoch_timestamp(932515200);
+        assert_eq!(date.year, 1999);
+        assert_eq!(date.month, 7);
+        assert_eq!(date.day, 21);
+    }
 }
